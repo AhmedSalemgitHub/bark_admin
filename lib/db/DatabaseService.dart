@@ -9,7 +9,25 @@ class DatabaseService {
 //Collections names
   String productRef = "product";
   String brandRef = "brand";
-  String categoryRef = "categories";
+  String categoryRef = "category";
+  String usersRef = "users";
+
+//users services
+//Retrive the product data list
+  Future<List<DocumentSnapshot>> getUsers() {
+    return _firestore.collection(usersRef).getDocuments().then((snaps) {
+      return snaps.documents;
+    });
+  }
+
+//count the users
+  int countusers(){
+    int count;
+    getUsers().then((products){
+      count = products.length;
+    });
+  return count;
+  }
 
 //Products Service
 //Upload the products
@@ -48,6 +66,15 @@ class DatabaseService {
     _firestore.collection(productRef).document(id).updateData(data);
   }
 
+  //count the products
+  int countProducts(){
+    int count;
+    getProduct().then((products){
+      count = products.length;
+    });
+  return count;
+  }
+
 //the brand services
 //create a new brand
   void createBrand(String name) {
@@ -57,7 +84,7 @@ class DatabaseService {
     _firestore
         .collection(brandRef)
         .document(brandId)
-        .setData({"brandName": name});
+        .setData({"name": name});
   }
 
 //retrive the brand list
@@ -76,7 +103,7 @@ class DatabaseService {
     _firestore
         .collection(categoryRef)
         .document(categoryId)
-        .setData({"categoryName": name});
+        .setData({"name": name});
   }
 
 //get the category list

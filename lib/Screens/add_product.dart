@@ -14,6 +14,15 @@ class AddProduct extends StatefulWidget {
 class _AddProductState extends State<AddProduct> {
   DatabaseService _databaseService = DatabaseService();
   GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+
+  //text controllers for the dialogs
+
+  TextEditingController brandController = TextEditingController();
+
+  //the form global keys used in the dialogs
+
+  GlobalKey<FormState> _brandFormKey = GlobalKey();
+
   TextEditingController productNameController = TextEditingController();
   TextEditingController productPriceController = TextEditingController();
   TextEditingController productDescController = TextEditingController();
@@ -42,8 +51,8 @@ class _AddProductState extends State<AddProduct> {
       items.insert(
           0,
           DropdownMenuItem(
-            child: Text(categoriesList[i].data['categoryName']),
-            value: categoriesList[i].data['categoryName'],
+            child: Text(categoriesList[i].data['name']),
+            value: categoriesList[i].data['name'],
           ));
     }
     return items;
@@ -55,8 +64,8 @@ class _AddProductState extends State<AddProduct> {
       items.insert(
         0,
         DropdownMenuItem(
-          child: Text(brandsList[i].data['brandName']),
-          value: brandsList[i].data['brandName'],
+          child: Text(brandsList[i].data['name']),
+          value: brandsList[i].data['name'],
         ),
       );
     }
@@ -65,20 +74,24 @@ class _AddProductState extends State<AddProduct> {
 
   _getCategories() async {
     List<DocumentSnapshot> data = await _databaseService.getCategories();
-    setState(() {
-      categoriesList = data;
-      categoriesDropDown = getCategoriesMenu();
-      _currentCategory = categoriesList[0].data['categoryName'];
-    });
+    if (data.isNotEmpty) {
+      setState(() {
+        categoriesList = data;
+        categoriesDropDown = getCategoriesMenu();
+        _currentCategory = categoriesList[0].data['name'];
+      });
+    }
   }
 
   _getBrands() async {
     List<DocumentSnapshot> data = await _databaseService.getBrands();
-    setState(() {
-      brandsList = data;
-      brandsDropDown = getBrandsMenu();
-      _currentBrand = brandsList[0].data['brandName'];
-    });
+    if (data.isNotEmpty) {
+      setState(() {
+        brandsList = data;
+        brandsDropDown = getBrandsMenu();
+        _currentBrand = brandsList[0].data['name'];
+      });
+    }
   }
 
   @override
@@ -90,9 +103,12 @@ class _AddProductState extends State<AddProduct> {
           "Add Product",
           style: TextStyle(color: Colors.black),
         ),
-        leading: Icon(
-          Icons.close,
-          color: Colors.black,
+        leading: InkWell(
+          onTap: (){Navigator.pop(context);},
+          child: Icon(
+            Icons.close,
+            color: Colors.black,
+          ),
         ),
       ),
       body: Form(
@@ -119,7 +135,6 @@ class _AddProductState extends State<AddProduct> {
                                 child: _displayChild()),
                           ),
                         ),
-
                       ],
                     ),
                     Divider(),
@@ -142,36 +157,32 @@ class _AddProductState extends State<AddProduct> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text("Category : "),
-                          DropdownButton(
-                            items: categoriesDropDown,
-                            onChanged: (String newValue) {
-                              setState(() {
-                                _currentCategory = newValue;
-                              });
-                            },
-                            value: _currentCategory,
-                          ),
-                        ],
+                      child: ListTile(
+                        leading: Text("Categories : "),
+                        title: DropdownButton(
+                          items: categoriesDropDown,
+                          onChanged: (String newValue) {
+                            setState(() {
+                              _currentCategory = newValue;
+                            });
+                          },
+                          value: _currentCategory,
+                        ),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text("Brand : "),
-                          DropdownButton(
-                            items: brandsDropDown,
-                            onChanged: (String newValue) {
-                              setState(() {
-                                _currentBrand = newValue;
-                              });
-                            },
-                            value: _currentBrand,
-                          ),
-                        ],
+                      child: ListTile(
+                        leading: Text("Brands : "),
+                        title: DropdownButton(
+                          items: brandsDropDown,
+                          onChanged: (String newValue) {
+                            setState(() {
+                              _currentBrand = newValue;
+                            });
+                          },
+                          value: _currentBrand,
+                        ),
                       ),
                     ),
                     Divider(),

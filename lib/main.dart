@@ -1,13 +1,19 @@
+import 'package:bark_admin/Screens/Brands.dart';
 import 'package:bark_admin/Screens/Products.dart';
 import 'package:bark_admin/db/DatabaseService.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'Screens/Categories.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,6 +27,19 @@ class MyApp extends StatelessWidget {
 }
 
 enum Page { dashboard, manage }
+DatabaseService databaseService = DatabaseService();
+
+List<Widget> listCategories(AsyncSnapshot snapshot) {
+  return snapshot.data.documents.map<Widget>((document) {
+    return Card(
+      child: Column(
+        children: <Widget>[
+          Text(document["name"]),
+        ],
+      ),
+    );
+  }).toList();
+}
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -97,96 +116,8 @@ class ManageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //text controllers for the dialogs
-    TextEditingController categoryController = TextEditingController();
-    TextEditingController brandController = TextEditingController();
-
-    //the form global keys used in the dialogs
-    GlobalKey<FormState> _categoryFormKey = GlobalKey();
-    GlobalKey<FormState> _brandFormKey = GlobalKey();
-
     //the services used to communicate with firebase
     DatabaseService _databaseService = DatabaseService();
-
-    void _categoryAlert() {
-      var alert = new AlertDialog(
-        content: Form(
-          key: _categoryFormKey,
-          child: TextFormField(
-            controller: categoryController,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'category cannot be empty';
-              } else {
-                return null;
-              }
-            },
-            decoration: InputDecoration(hintText: "add category"),
-          ),
-        ),
-        actions: <Widget>[
-          FlatButton.icon(
-            onPressed: () {
-              if (categoryController.text != null) {
-                _databaseService.createCategory(categoryController.text);
-              }
-              Fluttertoast.showToast(msg: "category created");
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.add),
-            label: Text('add'),
-          ),
-          FlatButton.icon(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.close),
-            label: Text('cancel'),
-          ),
-        ],
-      );
-      showDialog(context: context, builder: (_) => alert);
-    }
-
-    void _brandAlert() {
-      var alert = new AlertDialog(
-        content: Form(
-          key: _brandFormKey,
-          child: TextFormField(
-            controller: brandController,
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'brand cannot be empty';
-              } else {
-                return null;
-              }
-            },
-            decoration: InputDecoration(hintText: "add brand"),
-          ),
-        ),
-        actions: <Widget>[
-          FlatButton.icon(
-            onPressed: () {
-              if (brandController.text != null) {
-                _databaseService.createBrand(brandController.text);
-              }
-              Fluttertoast.showToast(msg: "brand created");
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.add),
-            label: Text('add'),
-          ),
-          FlatButton.icon(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.close),
-            label: Text('cancel'),
-          ),
-        ],
-      );
-      showDialog(context: context, builder: (_) => alert);
-    }
 
     return ListView(
       children: <Widget>[
@@ -201,28 +132,20 @@ class ManageWidget extends StatelessWidget {
         Divider(),
         ListTile(
           leading: Icon(Icons.add_circle),
-          title: Text("Add Category"),
+          title: Text("Categories List"),
           onTap: () {
-            _categoryAlert();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Categories()));
           },
         ),
         Divider(),
         ListTile(
-          leading: Icon(Icons.category),
-          title: Text("Category List"),
-        ),
-        Divider(),
-        ListTile(
-          leading: Icon(Icons.add_circle_outline),
-          title: Text("Add Brand"),
+          leading: Icon(Icons.speaker_notes),
+          title: Text("Brands List"),
           onTap: () {
-            _brandAlert();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Brands()));
           },
-        ),
-        Divider(),
-        ListTile(
-          leading: Icon(Icons.library_books),
-          title: Text("Brand list"),
         ),
         Divider(),
       ],
@@ -251,7 +174,7 @@ class DashboardWidget extends StatelessWidget {
           color: color,
           label: "users",
           labelIcon: Icons.person,
-          mainNumber: "7",
+          mainNumber: databaseService.countusers() ?? 0,
           pressFunction: () {},
         ),
         //the categories Block
@@ -259,7 +182,7 @@ class DashboardWidget extends StatelessWidget {
           color: color,
           label: "Categories",
           labelIcon: Icons.library_books,
-          mainNumber: "7",
+          mainNumber: 0,
           pressFunction: () {},
         ),
         //products Block
@@ -267,7 +190,7 @@ class DashboardWidget extends StatelessWidget {
           color: color,
           label: "products",
           labelIcon: Icons.widgets,
-          mainNumber: "7",
+          mainNumber: databaseService.countProducts() ?? 0,
           pressFunction: () {},
         ),
         //current orders Block
@@ -275,7 +198,7 @@ class DashboardWidget extends StatelessWidget {
           color: color,
           label: "Orders",
           labelIcon: Icons.add_shopping_cart,
-          mainNumber: "7",
+          mainNumber: 7,
           pressFunction: () {},
         ),
         //Sold Block
@@ -283,7 +206,7 @@ class DashboardWidget extends StatelessWidget {
           color: color,
           label: "Sold",
           labelIcon: Icons.sentiment_satisfied,
-          mainNumber: "7",
+          mainNumber: 7,
           pressFunction: () {},
         ),
         //temp
@@ -291,7 +214,7 @@ class DashboardWidget extends StatelessWidget {
           color: color,
           label: "temp",
           labelIcon: Icons.access_time,
-          mainNumber: "7",
+          mainNumber: 7,
           pressFunction: () {},
         ),
       ],
@@ -316,7 +239,7 @@ class DashboardBlock extends StatelessWidget {
   final String label;
   final Function pressFunction;
   final IconData labelIcon;
-  final String mainNumber;
+  final int mainNumber;
 
   @override
   Widget build(BuildContext context) {
@@ -337,7 +260,7 @@ class DashboardBlock extends StatelessWidget {
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 16.0),
             child: Text(
-              mainNumber,
+              mainNumber.toString(),
               textAlign: TextAlign.center,
               style: TextStyle(color: color, fontSize: 40.0),
             ),
