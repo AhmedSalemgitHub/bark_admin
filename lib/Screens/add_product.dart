@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:bark_admin/db/DatabaseService.dart';
+import 'package:bark_admin/services/DatabaseService.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,13 +16,7 @@ class _AddProductState extends State<AddProduct> {
   GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
   //text controllers for the dialogs
-
   TextEditingController brandController = TextEditingController();
-
-  //the form global keys used in the dialogs
-
-  GlobalKey<FormState> _brandFormKey = GlobalKey();
-
   TextEditingController productNameController = TextEditingController();
   TextEditingController productPriceController = TextEditingController();
   TextEditingController productDescController = TextEditingController();

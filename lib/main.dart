@@ -1,169 +1,60 @@
-import 'package:bark_admin/Screens/Brands.dart';
-import 'package:bark_admin/Screens/Products.dart';
-import 'package:bark_admin/db/DatabaseService.dart';
+import 'package:bark_admin/Models/brand.dart';
+import 'package:bark_admin/Models/categoty.dart';
+import 'package:bark_admin/Screens/Categories.dart';
+import 'package:bark_admin/services/firestore_service.dart';
 import 'package:flutter/material.dart';
-import 'Screens/Categories.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp2());
 }
 
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
+class MyApp2 extends StatelessWidget {
+  final FirestoreService _db = FirestoreService();
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Park Admin',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return MultiProvider(
+      providers: [
+        StreamProvider(create: (BuildContext context) => _db.getCategory()),
+        StreamProvider(create: (BuildContext context) => _db.getBrand()),
+      ],
+      child: MaterialApp(
+        title: 'Park Admin',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home:
+            //Home(),
+            MyHomePage(),
       ),
-      home: MyHomePage(title: 'Park Admin'),
     );
   }
 }
 
-enum Page { dashboard, manage }
-DatabaseService databaseService = DatabaseService();
-
-List<Widget> listCategories(AsyncSnapshot snapshot) {
-  return snapshot.data.documents.map<Widget>((document) {
-    return Card(
-      child: Column(
-        children: <Widget>[
-          Text(document["name"]),
-        ],
-      ),
-    );
-  }).toList();
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  //the page identefier
-  Page _selectedPage = Page.dashboard;
-
-  // the used colors for active and inactive
-  MaterialColor active = Colors.red;
-  MaterialColor notActive = Colors.grey;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
+class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Row(
-            children: <Widget>[
-              Expanded(
-                child: FlatButton.icon(
-                  onPressed: () {
-                    setState(() => _selectedPage = Page.dashboard);
-                  },
-                  icon: Icon(
-                    Icons.dashboard,
-                    color: _selectedPage == Page.dashboard ? active : notActive,
-                  ),
-                  label: Text("Dashboard"),
-                ),
-              ),
-              Expanded(
-                child: FlatButton.icon(
-                  onPressed: () {
-                    setState(() => _selectedPage = Page.manage);
-                  },
-                  icon: Icon(
-                    Icons.sort,
-                    color: _selectedPage == Page.manage ? active : notActive,
-                  ),
-                  label: Text("Manage"),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          "Dashboard",
+          style: TextStyle(color: Colors.red),
         ),
-        body: _selectedPage == Page.dashboard
-            ? DashboardWidget(
-                color: Colors.red,
-              )
-            : ManageWidget(
-                context: context,
-              ));
-  }
-}
-
-//the manage widget screen
-class ManageWidget extends StatelessWidget {
-  const ManageWidget({
-    Key key,
-    @required this.context,
-  }) : super(key: key);
-
-  final BuildContext context;
-
-  @override
-  Widget build(BuildContext context) {
-    //the services used to communicate with firebase
-    DatabaseService _databaseService = DatabaseService();
-
-    return ListView(
-      children: <Widget>[
-        ListTile(
-          leading: Icon(Icons.change_history),
-          title: Text("products List"),
-          onTap: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => Products()));
-          },
-        ),
-        Divider(),
-        ListTile(
-          leading: Icon(Icons.add_circle),
-          title: Text("Categories List"),
-          onTap: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => Categories()));
-          },
-        ),
-        Divider(),
-        ListTile(
-          leading: Icon(Icons.speaker_notes),
-          title: Text("Brands List"),
-          onTap: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => Brands()));
-          },
-        ),
-        Divider(),
-      ],
+        backgroundColor: Colors.white,
+      ),
+      body: DashboardWidget(),
     );
   }
 }
 
 // the main dashboard widget
 class DashboardWidget extends StatelessWidget {
-  const DashboardWidget({
-    Key key,
-    @required this.color,
-  }) : super(key: key);
-
-  final MaterialColor color;
-
+ 
   @override
   Widget build(BuildContext context) {
+    var category = Provider.of<List<Category>>(context);
+    var brand = Provider.of<List<Brand>>(context);
     return GridView(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -171,31 +62,51 @@ class DashboardWidget extends StatelessWidget {
       children: <Widget>[
         //The users Block
         DashboardBlock(
-          color: color,
+          color: Colors.red,
           label: "users",
           labelIcon: Icons.person,
-          mainNumber: databaseService.countusers() ?? 0,
+          mainNumber: 0,
           pressFunction: () {},
         ),
         //the categories Block
         DashboardBlock(
-          color: color,
+          color: Colors.red,
           label: "Categories",
           labelIcon: Icons.library_books,
-          mainNumber: 0,
-          pressFunction: () {},
+          mainNumber: category.length,
+          pressFunction: () {
+            Navigator.push(context, MaterialPageRoute(
+              builder: ((context){
+                return Categories();
+              }),
+            ));
+          },
+        ),
+        //temp
+        DashboardBlock(
+          color: Colors.red,
+          label: "Brand",
+          labelIcon: Icons.access_time,
+          mainNumber: brand.length,
+          pressFunction: () {
+            Navigator.push(context, MaterialPageRoute(
+              builder: ((context){
+                return Categories();
+              }),
+            ));
+          },
         ),
         //products Block
         DashboardBlock(
-          color: color,
+          color: Colors.red,
           label: "products",
           labelIcon: Icons.widgets,
-          mainNumber: databaseService.countProducts() ?? 0,
+          mainNumber: 0,
           pressFunction: () {},
         ),
         //current orders Block
         DashboardBlock(
-          color: color,
+          color: Colors.red,
           label: "Orders",
           labelIcon: Icons.add_shopping_cart,
           mainNumber: 7,
@@ -203,17 +114,9 @@ class DashboardWidget extends StatelessWidget {
         ),
         //Sold Block
         DashboardBlock(
-          color: color,
+          color: Colors.red,
           label: "Sold",
           labelIcon: Icons.sentiment_satisfied,
-          mainNumber: 7,
-          pressFunction: () {},
-        ),
-        //temp
-        DashboardBlock(
-          color: color,
-          label: "temp",
-          labelIcon: Icons.access_time,
           mainNumber: 7,
           pressFunction: () {},
         ),

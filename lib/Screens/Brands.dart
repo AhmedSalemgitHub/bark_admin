@@ -1,98 +1,30 @@
-import 'package:bark_admin/db/DatabaseService.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:bark_admin/Models/brand.dart';
+import 'package:bark_admin/services/firestore_service.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
-class Brands extends StatefulWidget {
-  @override
-  _BrandsState createState() => _BrandsState();
-}
-
-class _BrandsState extends State<Brands> {
-
-TextEditingController brandController = TextEditingController();
-GlobalKey<FormState> _brandFormKey = GlobalKey();
-
-DatabaseService _databaseService = DatabaseService();
-
-  List<Widget> listWidgets(AsyncSnapshot snapshot) {
-    return snapshot.data.documents.map<Widget>((document) {
-      return Card(
-        child: ListTile(
-          leading: Icon(Icons.category),
-          title:Text(document["name"]),
-        ),
-      );
-    }).toList();
-  }
-
+class Brands extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var brand = Provider.of<List<Brand>>(context);
+    FirestoreService _db = FirestoreService();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Brands"),
-      ),
-      body: Container(
-          child: StreamBuilder(
-              stream: Firestore.instance.collection("brand").snapshots(),
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.waiting:
-                    return CircularProgressIndicator();
-                    break;
-                  case ConnectionState.none:
-                    return Center(
-                        child: Text(
-                      "No Internet Connection",
-                      style: TextStyle(fontSize: 20, color: Colors.red),
-                    ));
-                    break;
-                  default:
-                    return ListView(children: listWidgets(snapshot));
-                }
-              })),
+      appBar: AppBar(title: Text("Admin")),
+      body: brand == null
+          ? CircularProgressIndicator()
+          : ListView.builder(
+              itemCount: brand.length ?? 0,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(brand[index].name.toString()),
+                );
+              }),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
         onPressed: () {
-          var alert = new AlertDialog(
-            content: Form(
-              key: _brandFormKey,
-              child: TextFormField(
-                controller: brandController,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Brand cannot be empty';
-                  } else {
-                    return null;
-                  }
-                },
-                decoration: InputDecoration(hintText: "add Brand"),
-              ),
-            ),
-            actions: <Widget>[
-              FlatButton.icon(
-                onPressed: () {
-                  if (brandController.text != null) {
-                    _databaseService.createBrand(brandController.text);
-                  }
-                  Fluttertoast.showToast(msg: "Brand created");
-                  Navigator.pop(context);
-                },
-                icon: Icon(Icons.add),
-                label: Text('add'),
-              ),
-              FlatButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: Icon(Icons.close),
-                label: Text('cancel'),
-              ),
-            ],
-          );
-          showDialog(context: context, builder: (_) => alert);
+          _db.addBrandAlert(context);
         },
+        child: Icon(Icons.add),
       ),
     );
   }
