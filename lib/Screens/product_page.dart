@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'add_product.dart';
 
-class Products extends StatelessWidget {
+class ProductPage extends StatelessWidget {
   List<Widget> listWidgets(AsyncSnapshot snapshot) {
     return snapshot.data.documents.map<Widget>((document) {
       return Card(

@@ -1,28 +1,28 @@
-import 'package:bark_admin/Models/categoty.dart';
+import 'package:bark_admin/Models/brand.dart';
 import 'package:bark_admin/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class Categories extends StatelessWidget {
+class BrandPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var category = Provider.of<List<Category>>(context);
+    var brand = Provider.of<List<Brand>>(context);
     FirestoreService _db = FirestoreService();
 
     return Scaffold(
       appBar: AppBar(title: Text("Admin")),
-      body: category == null
+      body: brand == null
           ? CircularProgressIndicator()
           : ListView.builder(
-              itemCount: category.length ?? 0,
+              itemCount: brand.length ?? 0,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(category[index].name.toString()),
+                  title: Text(brand[index].name.toString()),
                 );
               }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _db.addCategoryAlert(context);
+          _db.addBrandAlert(context);
         },
         child: Icon(Icons.add),
       ),

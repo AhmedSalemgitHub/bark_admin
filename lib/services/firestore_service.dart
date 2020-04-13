@@ -1,15 +1,26 @@
 import 'package:bark_admin/Models/categoty.dart';
 import 'package:bark_admin/Models/brand.dart';
+import 'package:bark_admin/Models/order.dart';
+import 'package:bark_admin/Models/product.dart';
+import 'package:bark_admin/Models/sold.dart';
+import 'package:bark_admin/Models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uuid/uuid.dart';
 
-class FirestoreService {
+class FirestoreService with ChangeNotifier{
+
   Firestore _db = Firestore.instance;
+
   var id = Uuid();
+  
   String _categoryRef = 'category';
   String _brandRef = 'brand';
+  String _productRef = 'product';
+  String _userRef = 'user';
+  String _orderRef = 'order';
+  String _soldRef = 'sold';
 
   Stream<List<Category>> getCategory() {
     return _db
@@ -28,6 +39,46 @@ class FirestoreService {
         .snapshots()
         .map((snapshot) => snapshot.documents
             .map((document) => Brand.fromJson(document.data))
+            .toList());
+  }
+
+  Stream<List<Product>> getProduct() {
+    return _db
+        .collection(_productRef)
+        //.orderBy('name', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.documents
+            .map((document) => Product.fromJson(document.data))
+            .toList());
+  }
+
+  Stream<List<User>> getUser() {
+    return _db
+        .collection(_userRef)
+        //.orderBy('name', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.documents
+            .map((document) => User.fromJson(document.data))
+            .toList());
+  }
+
+  Stream<List<Order>> getOrder() {
+    return _db
+        .collection(_orderRef)
+        //.orderBy('name', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.documents
+            .map((document) => Order.fromJson(document.data))
+            .toList());
+  }
+
+  Stream<List<Sold>> getSold() {
+    return _db
+        .collection(_soldRef)
+        //.orderBy('name', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.documents
+            .map((document) => Sold.fromJson(document.data))
             .toList());
   }
 
@@ -120,7 +171,7 @@ class FirestoreService {
         FlatButton.icon(
           onPressed: () {
             if (categoryController.text != null) {
-              addBrand(categoryController.text);
+              addCategory(categoryController.text);
               //_databaseService.createBrand(brandController.text);
             }
             Fluttertoast.showToast(msg: "Category created");
@@ -140,4 +191,10 @@ class FirestoreService {
     );
     showDialog(context: context, builder: (_) => alert);
   }
+
+  void notify(){
+    notifyListeners();
+  }
+
+  
 }
