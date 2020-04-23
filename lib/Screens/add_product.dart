@@ -29,7 +29,6 @@ class _AddProductState extends State<AddProduct> {
   String _currentBrand;
 
   File _fileImage1;
-
   bool isLoading = false;
 
   @override
@@ -98,7 +97,9 @@ class _AddProductState extends State<AddProduct> {
           style: TextStyle(color: Colors.black),
         ),
         leading: InkWell(
-          onTap: (){Navigator.pop(context);},
+          onTap: () {
+            Navigator.pop(context);
+          },
           child: Icon(
             Icons.close,
             color: Colors.black,
@@ -245,7 +246,16 @@ class _AddProductState extends State<AddProduct> {
 
   void _selectImage(Future<File> pickImage) async {
     File temp = await pickImage;
+    int max = 3 * 1024 * 1024;
+    int fileSize = temp.lengthSync();
+    if (fileSize > max) {
+      temp = null;
+      Fluttertoast.showToast(msg: "File size must be less than 3 mega bytes");
+      temp = await pickImage;
+    } else {
     setState(() => _fileImage1 = temp);
+    }
+
   }
 
   _displayChild() {
@@ -293,7 +303,7 @@ class _AddProductState extends State<AddProduct> {
         });
       } else {
         setState(() => isLoading = true);
-        Fluttertoast.showToast(msg: "please select three images");
+        Fluttertoast.showToast(msg: "please select an image");
       }
     }
   }

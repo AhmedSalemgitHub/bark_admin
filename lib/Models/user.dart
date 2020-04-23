@@ -33,4 +33,31 @@ class User {
       registerMethod = data['registerMethod'],
       reviews = data['reviews'],
       userCart = data['userCart'];
+
+static Map<String, dynamic> toJson(
+      {String id,
+      String name,
+      String email,
+      String photo,
+      String registerMethod,
+      int age,
+      String phone,
+      List orders,
+      List reviews,
+      List userCart}) {
+    return {
+      'id': id,
+      'name': name,
+      'age': age,
+      'email': email,
+      'orders': orders,
+      'phone': phone,
+      'photo': photo,
+      'registerMethod': registerMethod,
+      'reviews': reviews,
+      'userCart': userCart
+    };
+  }
+
+
 }

@@ -9,6 +9,40 @@ class CategoryPage extends StatelessWidget {
     var category = Provider.of<List<Category>>(context);
     FirestoreService _db = FirestoreService();
 
+    Future<void> _removeCategory(BuildContext context ,String id) async {
+      return showDialog<void>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Remove Category'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('The selected category will be removed from categories menu, old categories will remain.'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child: Text('OK'),
+                onPressed: () {
+                  _db.removeCategoty(id);
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        },
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text("Admin")),
       body: category == null
@@ -18,6 +52,12 @@ class CategoryPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text(category[index].name.toString()),
+                  trailing: InkWell(
+                    child: Icon(Icons.delete, color: Colors.red),
+                    onTap: () {
+                      _removeCategory(context, category[index].id);
+                    },
+                  ),
                 );
               }),
       floatingActionButton: FloatingActionButton(

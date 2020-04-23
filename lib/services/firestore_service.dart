@@ -86,14 +86,14 @@ class FirestoreService with ChangeNotifier{
     var dataMap = Map<String, dynamic>();
     dataMap['id'] = id.v1();
     dataMap['name'] = name;
-    return _db.collection(_categoryRef).add(dataMap);
+    return _db.collection(_categoryRef).document(dataMap['id']).setData(dataMap);
   }
 
   Future<void> addBrand(String name) {
     var dataMap = Map<String, dynamic>();
     dataMap['id'] = id.v1();
     dataMap['name'] = name;
-    return _db.collection(_brandRef).add(dataMap);
+    return _db.collection(_brandRef).document(dataMap['id']).setData(dataMap);
   }
 
   Future<void> removeCategoty(String uid) {

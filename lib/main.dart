@@ -4,7 +4,8 @@ import 'package:bark_admin/Models/order.dart';
 import 'package:bark_admin/Models/product.dart';
 import 'package:bark_admin/Models/sold.dart';
 import 'package:bark_admin/Models/user.dart';
-import 'package:bark_admin/Screens/dashboard.dart';
+import 'package:bark_admin/Screens/login.dart';
+import 'package:bark_admin/provider/auth_provider.dart';
 import 'package:bark_admin/services/firestore_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<FirestoreService>(create: (BuildContext context) => _db),
+        ChangeNotifierProvider.value(value: AuthProvider.initialize()),
         StreamProvider<List<Category>>(create: (BuildContext context) => _db.getCategory()),
         StreamProvider<List<Brand>>(create: (BuildContext context) => _db.getBrand()),
         StreamProvider<List<Product>>(create: (BuildContext context) => _db.getProduct()),
@@ -34,7 +36,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home:Dashboard(),
+        home:LogIn(),
       ),
     );
   }
